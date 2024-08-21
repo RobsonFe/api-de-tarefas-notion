@@ -1,4 +1,5 @@
 
+from notion import serializer
 from notion.models.entity.notion import Notion
 from notion.serializer.serializers import NotionSerializer
 from rest_framework import generics
@@ -35,3 +36,11 @@ class NotionUpdateAndDelete(generics.RetrieveUpdateDestroyAPIView):
 class NotionList(generics.ListCreateAPIView):
     queryset = Notion.objects.all()
     serializer_class = NotionSerializer
+
+# Buscar dados no banco pelo ID
+
+
+class NotionFindById(generics.RetrieveAPIView):
+    queryset = Notion.objects.all()
+    serializer_class = NotionSerializer
+    lookup_field = 'id'

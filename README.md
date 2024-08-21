@@ -30,7 +30,7 @@ pip install -r requirements.txt
 
 ```json
 {
-  "title": "Estudar TypeScript",
+  "title": "Estudar Python",
   "status": "Em andamento",
   "priority": "Alta"
 }
@@ -48,7 +48,6 @@ Esta API REST gerencia tarefas com os seguintes campos: `title`, `status`, `prio
 
 - **URL:** `/api/v1/notion/create/`
 - **Método:** `POST`
--
 - **Descrição:** Cria uma nova tarefa.
 - **Corpo da Requisição:**
   ```json
@@ -115,7 +114,7 @@ Esta API REST gerencia tarefas com os seguintes campos: `title`, `status`, `prio
 
 ### 3. **Obter Detalhes de uma Tarefa**
 
-- **URL:** `/api/v1/notion/update/{id}`
+- **URL:** `/api/v1/notion/findby/{id}`
 - **Método:** `GET`
 - **Descrição:** Retorna os detalhes de uma tarefa específica.
 - **Parâmetros de Caminho:**
