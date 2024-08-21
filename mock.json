@@ -1,0 +1,78 @@
+{
+    "updatedNotion": {
+        "_id": "66beccd08024318b37e0fccd",
+        "title": "Estudar Rest API",
+        "status": "Concluído",
+        "priority": "Atenção",
+        "notionPageId": "c8936e3a-7efa-4667-b190-1425fc1ceaba",
+        "__v": 0
+    },
+    "response": {
+        "object": "page",
+        "id": "c8936e3a-7efa-4667-b190-1425fc1ceaba",
+        "created_time": "2024-08-16T03:51:00.000Z",
+        "last_edited_time": "2024-08-16T20:26:00.000Z",
+        "created_by": {
+            "object": "user",
+            "id": "d7800c67-8ff1-47f1-a3d6-3d20a90c1899"
+        },
+        "last_edited_by": {
+            "object": "user",
+            "id": "d7800c67-8ff1-47f1-a3d6-3d20a90c1899"
+        },
+        "cover": null,
+        "icon": null,
+        "parent": {
+            "type": "database_id",
+            "database_id": "b610b0d1-ea87-4cbc-8551-aae60cf60dfc"
+        },
+        "archived": false,
+        "in_trash": false,
+        "properties": {
+            "Prioridade": {
+                "id": "Xvi_",
+                "type": "select",
+                "select": {
+                    "id": "oa>m",
+                    "name": "Atenção",
+                    "color": "yellow"
+                }
+            },
+            "Status": {
+                "id": "%7CN_P",
+                "type": "status",
+                "status": {
+                    "id": "4f45852e-2780-4fed-9f6c-f9de785118cb",
+                    "name": "Concluído",
+                    "color": "green"
+                }
+            },
+            "Tarefa": {
+                "id": "title",
+                "type": "title",
+                "title": [
+                    {
+                        "type": "text",
+                        "text": {
+                            "content": "Estudar Rest API",
+                            "link": null
+                        },
+                        "annotations": {
+                            "bold": false,
+                            "italic": false,
+                            "strikethrough": false,
+                            "underline": false,
+                            "code": false,
+                            "color": "default"
+                        },
+                        "plain_text": "Estudar Rest API",
+                        "href": null
+                    }
+                ]
+            }
+        },
+        "url": "https://www.notion.so/Estudar-Rest-API-c8936e3a7efa4667b1901425fc1ceaba",
+        "public_url": null,
+        "request_id": "d0a8d03a-d34c-48e0-828b-b9adf91f73ce"
+    }
+}
