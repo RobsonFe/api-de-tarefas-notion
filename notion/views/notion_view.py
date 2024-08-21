@@ -43,4 +43,4 @@ class NotionList(generics.ListCreateAPIView):
 class NotionFindById(generics.RetrieveAPIView):
     queryset = Notion.objects.all()
     serializer_class = NotionSerializer
-    lookup_field = 'id'
+    lookup_field = 'pk'
