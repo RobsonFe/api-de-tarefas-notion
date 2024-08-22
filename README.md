@@ -26,9 +26,19 @@ pip install -r requirements.txt
 
 ## Endpoints da API
 
-Link da Documentação da API
-[Documentação da API](http://127.0.0.1:8000/docs/)
-[Documentação da API ALternativa](http://127.0.0.1:8000/redoc/)
+### **Link da Documentação da API**
+
+<br>
+
+- [Documentação da API](http://127.0.0.1:8000/docs/)
+
+<br>
+
+- [Documentação da API ALternativa](http://127.0.0.1:8000/redoc/)
+
+<br>
+
+---
 
 - Schema
 
@@ -44,7 +54,7 @@ Link da Documentação da API
 
 ## Visão Geral
 
-Esta API REST gerencia tarefas com os seguintes campos: `title`, `status`, `priority`, e `notionPageId`. Abaixo estão descritos os principais endpoints da API.
+Esta API REST gerencia tarefas com os seguintes campos: `title`, `status`, `priority`, e `notion_page_id`. Abaixo estão descritos os principais endpoints da API.
 
 ## Endpoints
 
