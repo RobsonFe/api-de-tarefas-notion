@@ -40,6 +40,71 @@ def get_data_from_notion():
     data = response.json()
     return data['results']
 
+# Deletar dados do Notion
+
+
+def delete_from_notion(notion_page_id):
+    url = f"https://api.notion.com/v1/pages/{notion_page_id}"
+    headers = {
+        "Authorization": f"Bearer {notion_token}",
+        "Content-Type": "application/json",
+        "Notion-Version": "2022-06-28",
+    }
+    data = {
+        "archived": True
+    }
+    response = requests.patch(url, json=data, headers=headers)
+    if response.status_code != 200:
+        logger.error("Erro ao excluir a página no Notion: %s", response.text)
+        raise Exception("Erro ao excluir a página no Notion")
+    logger.info(
+        "Página com Notion Page ID %s arquivada no Notion.", notion_page_id)
+
+# Excluir dados do Excel
+
+
+def delete_from_sheet(notion_page_id):
+    file_path = "./planilhas/Tarefas.xlsx"
+    sheet_name = "Tarefas"
+
+    if not os.path.exists(file_path):
+        logger.warning("O arquivo de planilha não foi encontrado.")
+        return
+
+    workbook = openpyxl.load_workbook(file_path)
+
+    if sheet_name not in workbook.sheetnames:
+        logger.warning("A planilha '%s' não existe no arquivo.", sheet_name)
+        return
+
+    worksheet = workbook[sheet_name]
+
+    # Encontre e exclua a linha com o Notion Page ID correspondente
+    rows_to_delete = []
+    for row in worksheet.iter_rows(min_row=2, max_col=4):
+        if row[3].value == notion_page_id:
+            rows_to_delete.append(row[0].row)
+
+    for row_idx in reversed(rows_to_delete):
+        worksheet.delete_rows(row_idx)
+
+    workbook.save(file_path)
+    logger.info(f"Linhas com Notion Page ID {
+                notion_page_id} excluídas da planilha.")
+
+
+# Excluir do banco de dados
+
+def delete_from_db(notion_page_id):
+    try:
+        Notion.objects.get(notion_page_id=notion_page_id).delete()
+        logger.info(
+            "Registro com Notion Page ID %s excluído do banco de dados.", notion_page_id)
+    except Notion.DoesNotExist:
+        logger.warning(
+            "Registro com Notion Page ID %s não encontrado no banco de dados.", notion_page_id)
+
+
 # Função para salvar ou atualizar dados em uma planilha de Excel
 
 
@@ -149,7 +214,6 @@ class NotionUpdateAndDelete(generics.RetrieveUpdateDestroyAPIView):
 
     def update(self, request, *args, **kwargs):
         try:
-            # Obter o objeto do banco de dados
             instance = self.get_object()
             data = request.data
 
@@ -162,7 +226,7 @@ class NotionUpdateAndDelete(generics.RetrieveUpdateDestroyAPIView):
             # Atualizar a página no Notion
             notion_update_data = {
                 "properties": {
-                    "title": {  # Nome da propriedade no Notion
+                    "title": {
                         "title": [
                             {
                                 "text": {
@@ -171,12 +235,12 @@ class NotionUpdateAndDelete(generics.RetrieveUpdateDestroyAPIView):
                             },
                         ],
                     },
-                    "Prioridade": {  # Nome da propriedade no Notion
+                    "Prioridade": {
                         "select": {
                             "name": data.get("priority", updated_notion.priority),
                         },
                     },
-                    "Status": {  # Nome da propriedade no Notion
+                    "Status": {
                         "status": {
                             "name": data.get("status", updated_notion.status),
                         },
@@ -219,6 +283,32 @@ class NotionUpdateAndDelete(generics.RetrieveUpdateDestroyAPIView):
         except Exception as erro:
             logger.error("Erro ao atualizar Notion: %s", erro)
             return Response({"message": "Erro ao atualizar tarefa"}, status=status.HTTP_400_BAD_REQUEST)
+
+    def delete(self, request, *args, **kwargs):
+        try:
+            instance = self.get_object()
+            notion_page_id = instance.notion_page_id
+
+            # Obter detalhes do objeto antes da exclusão
+            serialized_notion = NotionSerializer(instance).data
+
+            # Excluir do Notion
+            delete_from_notion(notion_page_id)
+
+            # Excluir da planilha de Excel
+            delete_from_sheet(notion_page_id)
+
+            # Excluir do banco de dados
+            delete_from_db(notion_page_id)
+            # Registrar o objeto excluído no console
+            logger.info("Objeto excluído: %s", json.dumps(
+                serialized_notion, indent=4, ensure_ascii=False))
+
+            # Retornar o objeto excluído na resposta da API
+            return Response({"message": "Tarefa excluída com sucesso", "data": serialized_notion}, status=status.HTTP_204_NO_CONTENT)
+        except Exception as erro:
+            logger.error("Erro ao excluir Notion: %s", erro)
+            return Response({"message": "Erro ao excluir tarefa"}, status=status.HTTP_400_BAD_REQUEST)
 
 # Listar Dados
 
