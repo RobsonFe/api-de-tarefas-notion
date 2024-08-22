@@ -11,6 +11,11 @@ https://docs.djangoproject.com/en/5.1/ref/settings/
 """
 
 from pathlib import Path
+from dotenv import load_dotenv
+import os
+
+
+load_dotenv()
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -87,10 +92,10 @@ WSGI_APPLICATION = 'core.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'notiondb',
-        'USER': 'root',
-        'PASSWORD': 'Ativos@2024',
-        'PORT': 3306
+        'NAME': os.getenv("NOME_DO_BANCO"),
+        'USER': os.getenv("HOST_DO_BANCO"),
+        'PASSWORD': os.getenv("PASSWORD_DO_BANCO"),
+        'PORT': os.getenv("PORTA_DO_BANCO")
     }
 }
 
