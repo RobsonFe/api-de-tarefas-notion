@@ -38,39 +38,40 @@ class NotionCreateView(generics.CreateAPIView):
     serializer_class = NotionSerializer
 
     def create(self, request, *args, **kwargs):
-        data = request.data
-        url = "https://api.notion.com/v1/pages"
-        payload = {
-            "parent": {"database_id": banco_notion},
-            "properties": {
-                "title": {"title": [{"text": {"content": data["title"]}}]},
-                "Prioridade": {"select": {"name": data["priority"]}},
-                "Status": {"status": {"name": data["status"]}},
+        try:
+            data = request.data
+            url = "https://api.notion.com/v1/pages"
+            payload = {
+                "parent": {"database_id": banco_notion},
+                "properties": {
+                    "title": {"title": [{"text": {"content": data["title"]}}]},
+                    "Prioridade": {"select": {"name": data["priority"]}},
+                    "Status": {"status": {"name": data["status"]}},
+                }
             }
-        }
-        response = requests.post(url, json=payload, headers=headers)
+            response = requests.post(url, json=payload, headers=headers)
 
-        # Verificação se a resposta foi bem-sucedida
-        if response.status_code in [200, 201]:
-            # Salvar a tarefa no banco de dados
-            notion_id = response.json()["id"]
-            notion = Notion.objects.create(
-                title=data["title"],
-                status=data["status"],
-                priority=data["priority"],
-                notion_page_id=notion_id
-            )
+            # Verificação se a resposta foi bem-sucedida
+            if response.status_code in [200, 201]:
+                # Salvar a tarefa no banco de dados
+                notion_id = response.json()["id"]
+                notion = Notion.objects.create(
+                    title=data["title"],
+                    status=data["status"],
+                    priority=data["priority"],
+                    notion_page_id=notion_id
+                )
 
-            # Serializar os dados do objeto criado para retorno das respostas
-            serialized_notion = NotionSerializer(notion).data
+                # Serializar os dados do objeto criado para retorno das respostas
+                serialized_notion = NotionSerializer(notion).data
 
-            # Registrar os dados no log em formato JSON
-            print(json.dumps(serialized_notion, indent=4, ensure_ascii=False))
+                # Registrar os dados no log em formato JSON
+                print(json.dumps(serialized_notion, indent=4, ensure_ascii=False))
 
             # Retornar os dados criados na resposta
             return Response({"message": "Tarefa criada com sucesso", "data": serialized_notion}, status=status.HTTP_201_CREATED)
-        else:
-            print("Erro ao criar Notion:", response.text)
+        except Exception as erro:
+            print("Erro ao criar Notion:", erro)
             return Response({"message": "Error creating Notion"}, status=status.HTTP_400_BAD_REQUEST)
 
 
@@ -95,3 +96,9 @@ class NotionFindById(generics.RetrieveAPIView):
     queryset = Notion.objects.all()
     serializer_class = NotionSerializer
     lookup_field = 'pk'
+
+
+class FindIdByNotion(generics.RetrieveAPIView):
+    queryset = Notion.objects.all()
+    serializer_class = NotionSerializer
+    lookup_field = 'notion_page_id'
