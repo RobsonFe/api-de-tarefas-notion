@@ -8,7 +8,7 @@ Esse projeto consiste em uma API feita em Django Rest Framework integrada com o 
 - API do Notion para o gerenciamento de tarefas.
 - Banco de dados MySQL.
 - Swagger e OpenAPI para documentação da API.
-- Biblioteca XLSX para gerar relatórios Python em Excel.
+- Biblioteca openpyxl para gerar relatórios Python em Excel.
 
 ## Front-End
 
@@ -25,6 +25,10 @@ pip install -r requirements.txt
 ```
 
 ## Endpoints da API
+
+Link da Documentação da API
+[Documentação da API](http://127.0.0.1:8000/docs/)
+[Documentação da API ALternativa](http://127.0.0.1:8000/redoc/)
 
 - Schema
 
@@ -66,7 +70,7 @@ Esta API REST gerencia tarefas com os seguintes campos: `title`, `status`, `prio
       "title": "Aprendendo Python",
       "status": "Em andamento",
       "priority": "Alta",
-      "notionPageId": "generated_notion_page_id",
+      "notion_page_id": "generated_notion_page_id",
       "__v": 0
     }
     ```
@@ -157,8 +161,8 @@ Esta API REST gerencia tarefas com os seguintes campos: `title`, `status`, `prio
       "id": "3e150ad4-77ac-405c-a3cc-f0c843ccf288",
       "title": "Aprendendo Django Rest Framework",
       "status": "Concluído",
-      "priority": "Alta"
-      "notionPageId": "d9053095-4fe1-4e53-90b6-1bdb126fc838",
+      "priority": "Alta",
+      "notion_page_id": "d9053095-4fe1-4e53-90b6-1bdb126fc838",
       "updatedAt": "2024-08-20T14:00:00Z",
       "__v": 0
     }

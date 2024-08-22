@@ -1,10 +1,12 @@
 from asyncio.log import logger
 from notion.serializer.serializers import NotionSerializer
+from drf_yasg.utils import swagger_auto_schema
 from notion.models.entity.notion import Notion
 from rest_framework.response import Response
 from rest_framework import generics
 from rest_framework import status
 from dotenv import load_dotenv
+from drf_yasg import openapi
 import logging
 import openpyxl
 import requests
@@ -157,6 +159,47 @@ def save_or_update_in_sheet(notion_data):
 class NotionCreateView(generics.CreateAPIView):
     serializer_class = NotionSerializer
 
+    def get_fields(self):
+        fields = [field.name for field in Notion._meta.get_fields()]
+        fields.remove('notion_page_id')
+        return fields
+
+    @swagger_auto_schema(
+        operation_description="Cria uma nova tarefa no Notion",
+        tags=['Notion'],
+        request_body=openapi.Schema(
+            type=openapi.TYPE_OBJECT,
+            properties={
+                'title': openapi.Schema(type=openapi.TYPE_STRING, description='Título da tarefa', example='Estudar Django Rest Framework'),
+                'status': openapi.Schema(type=openapi.TYPE_STRING, description='Status da tarefa', example='Em andamento'),
+                'priority': openapi.Schema(type=openapi.TYPE_STRING, description='Prioridade da tarefa', example='Alta'),
+            }
+        ),
+        responses={
+            201: openapi.Response(
+                description="Tarefa criada com sucesso",
+                examples={
+                    'application/json': {
+                        'message': 'Tarefa criada com sucesso',
+                        'data': {
+                            'title': 'Estudar Django Rest Framework',
+                            'status': 'Em andamento',
+                            'priority': 'Alta',
+                            'notion_page_id': 'exemplo_id'
+                        }
+                    }
+                }
+            ),
+            400: openapi.Response(
+                description="Erro ao criar tarefa",
+                examples={
+                    'application/json': {
+                        'message': 'Erro ao criar tarefa'
+                    }
+                }
+            )
+        }
+    )
     def create(self, request, *args, **kwargs):
         try:
             data = request.data
@@ -183,7 +226,8 @@ class NotionCreateView(generics.CreateAPIView):
                 )
 
                 # Serializar os dados do objeto criado para retorno das respostas
-                serialized_notion = NotionSerializer(notion).data
+                serializer = self.get_serializer(notion)
+                serialized_notion = serializer.data
 
                 # Atualizar a planilha
                 notion_data = {
@@ -212,6 +256,42 @@ class NotionUpdateAndDelete(generics.RetrieveUpdateDestroyAPIView):
     serializer_class = NotionSerializer
     lookup_field = 'pk'
 
+    @swagger_auto_schema(
+        operation_description="Atualiza uma tarefa existente",
+        tags=['Notion'],
+        request_body=openapi.Schema(
+            type=openapi.TYPE_OBJECT,
+            properties={
+                'title': openapi.Schema(type=openapi.TYPE_STRING, description='Título da tarefa', example='Título Atualizado'),
+                'status': openapi.Schema(type=openapi.TYPE_STRING, description='Status da tarefa', example='Concluído'),
+                'priority': openapi.Schema(type=openapi.TYPE_STRING, description='Prioridade da tarefa', example='Baixa'),
+            }
+        ),
+        responses={
+            200: openapi.Response(
+                description="Tarefa atualizada com sucesso",
+                examples={
+                    'application/json': {
+                        'message': 'Tarefa atualizada com sucesso',
+                        'data': {
+                            'title': 'Título Atualizado',
+                            'status': 'Concluído',
+                            'priority': 'Baixa',
+                            'notion_page_id': 'exemplo_id'
+                        }
+                    }
+                }
+            ),
+            400: openapi.Response(
+                description="Erro ao atualizar tarefa",
+                examples={
+                    'application/json': {
+                        'message': 'Erro ao atualizar tarefa'
+                    }
+                }
+            )
+        }
+    )
     def update(self, request, *args, **kwargs):
         try:
             instance = self.get_object()
@@ -284,6 +364,28 @@ class NotionUpdateAndDelete(generics.RetrieveUpdateDestroyAPIView):
             logger.error("Erro ao atualizar Notion: %s", erro)
             return Response({"message": "Erro ao atualizar tarefa"}, status=status.HTTP_400_BAD_REQUEST)
 
+    @swagger_auto_schema(
+        operation_description="Deleta uma tarefa existente",
+        tags=['Notion'],
+        responses={
+            204: openapi.Response(
+                description="Tarefa excluída com sucesso",
+                examples={
+                    'application/json': {
+                        'message': 'Tarefa excluída com sucesso'
+                    }
+                }
+            ),
+            400: openapi.Response(
+                description="Erro ao excluir tarefa",
+                examples={
+                    'application/json': {
+                        'message': 'Erro ao excluir tarefa'
+                    }
+                }
+            )
+        }
+    )
     def delete(self, request, *args, **kwargs):
         try:
             instance = self.get_object()
@@ -313,20 +415,103 @@ class NotionUpdateAndDelete(generics.RetrieveUpdateDestroyAPIView):
 # Listar Dados
 
 
+# Lista todas as tarefas
 class NotionList(generics.ListCreateAPIView):
     queryset = Notion.objects.all()
     serializer_class = NotionSerializer
 
+    @swagger_auto_schema(
+        operation_description="Lista todas as tarefas",
+        tags=['Notion'],
+        responses={
+            200: openapi.Response(
+                description="Lista de tarefas",
+                examples={
+                    'application/json': {
+                        'results': [
+                            {
+                                'title': 'Título Exemplo',
+                                'status': 'Em andamento',
+                                'priority': 'Alta',
+                                'notion_page_id': 'exemplo_id'
+                            }
+                        ]
+                    }
+                }
+            )
+        }
+    )
+    def get(self, request, *args, **kwargs):
+        return super().get(request, *args, **kwargs)
+
+    def post(self, request, *args, **kwargs):
+        return super().post(request, *args, **kwargs)
+
+
 # Buscar dados no banco pelo ID
-
-
 class NotionFindById(generics.RetrieveAPIView):
     queryset = Notion.objects.all()
     serializer_class = NotionSerializer
     lookup_field = 'pk'
 
+    @swagger_auto_schema(
+        operation_description="Busca uma tarefa pelo ID",
+        tags=['Notion'],
+        responses={
+            200: openapi.Response(
+                description="Tarefa encontrada",
+                examples={
+                    'application/json': {
+                        'title': 'Título Exemplo',
+                        'status': 'Em andamento',
+                        'priority': 'Alta',
+                        'notion_page_id': 'exemplo_id'
+                    }
+                }
+            ),
+            404: openapi.Response(
+                description="Tarefa não encontrada",
+                examples={
+                    'application/json': {
+                        'message': 'Tarefa não encontrada'
+                    }
+                }
+            )
+        }
+    )
+    def get(self, request, *args, **kwargs):
+        return super().get(request, *args, **kwargs)
 
+
+# Busca uma tarefa pelo Notion Page ID
 class FindIdByNotion(generics.RetrieveAPIView):
     queryset = Notion.objects.all()
     serializer_class = NotionSerializer
     lookup_field = 'notion_page_id'
+
+    @swagger_auto_schema(
+        operation_description="Busca uma tarefa pelo Notion Page ID",
+        responses={
+            200: openapi.Response(
+                description="Tarefa encontrada",
+                examples={
+                    'application/json': {
+                        'title': 'Título Exemplo',
+                        'status': 'Em andamento',
+                        'priority': 'Alta',
+                        'notion_page_id': 'exemplo_id'
+                    }
+                }
+            ),
+            404: openapi.Response(
+                description="Tarefa não encontrada",
+                examples={
+                    'application/json': {
+                        'message': 'Tarefa não encontrada'
+                    }
+                }
+            )
+        }
+    )
+    def get(self, request, *args, **kwargs):
+        return super().get(request, *args, **kwargs)
