@@ -9,6 +9,7 @@ class Notion(models.Model):
     title = models.CharField(max_length=255)
     status = models.CharField(max_length=20, choices=StatusEnum.choices)
     priority = models.CharField(max_length=20, choices=PriorityEnum.choices)
+    notion_page_id = models.CharField(max_length=255, null=True, blank=True)
 
     class Meta:
         verbose_name = "Notion"
